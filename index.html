@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+
+    <title>Social Graphs</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="./index.css"/>
+</head>
+
+<!-- PAGE BEGIN -->
+
+<body>
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4">Social Graphs - Movie Analysis</h1>
+        <p class="lead">
+            Made by Oscar Fehrn, Emil Godsk and Frederik Flint
+        </p>
+        <hr class="my-4"/>
+        <p>
+            Throughout this paper, we'll be analyzing movies and actors. We're
+            working with a very large dataset, containing around 40k movie titles
+            and all kinds of data unique to each title, eg. budget, revenue,
+            rating, actors, plot and much more!
+        </p>
+        <p>
+            We'll start by motivating our research, discussing our dataset, and present the paper.
+        </p>
+    </div>
+
+    <h2>
+        Table of Contents
+    </h2>
+
+    <p>
+        This will be TOC
+    </p>
+
+    <h2>
+        Motivation
+    </h2>
+
+    <p>
+        During this paper, we want to unveil everything we can about modern movies. We want to see how actors
+        connect between movies. We want to know if we can define a genre based on the common words they use. We want to
+        discover how movies, and their plots have changed through time, compare different genres to understand what
+        makes a good plot in romance, compared to a good plot in action.
+    </p>
+
+    <h2>
+        Data
+    </h2>
+
+    <p>
+        In order to answer all our questions, we need data. We were equipped with a dataset containing titles
+        to approximately 58k movies. We used this dataset, to query TMDB (The Movie DataBase) and OMDB (Open Movie
+        DataBase), extracting all the data we could get in our hands. Some of the titles weren't available from the two
+        API's, and after removing all movies released before 1980, we were left with approximately 40k movie titles,
+        each wih extensive data.
+    </p>
+
+    <p>
+        The 40k movie titles makes a base for our data and analysis. We will however apply filters to the data in each
+        step of our paper,
+        to make sure that the results are digestible, and maybe more importantly computable. We did encounter very long
+        operation times
+        when creating network of actors when there were more than 200k actors, and even if we were able to compute that,
+        the network generated
+        would probably be too swarmed to understand anyway.
+    </p>
+
+    <hr class="featurette-divider" id="retrievingdata">
+
+    <h1>
+        A network of actors
+    </h1>
+
+    <p>
+        We wanted to see what a network of actors potentially could look like. See if any communities are occurring
+        between the actors, and in that case,
+        what defines these communities? Are actors generally grouped by their gender? age? genre? These were the kinds
+        of questions that we asked ourselves,
+        before creating and analysing the actors.
+    </p>
+
+    <h2>
+        Creating the network
+    </h2>
+
+    <p>
+        First, we had to figure a way to create these networks. Since we wanted to depict the relationship between
+        actors, we figured that this network should have actors as nodes. Then actors starring in the same movies should
+        be connected by edges. However, since we had so many movie titles, the amount edges
+        contained in the graph were in the millions, which we believed got out of control. We thought of possible ways
+        of narrowing down the edges, while still preserving our data, and had the idea that actors are only connected to
+        actors if they star in multiple movies together. After testing this with different thresholds, we settled
+        on the number 3. That meant that actors are now only connected if they star in 3 or more movies together. To
+        this extend, the edge's weight were given by the amount of co-starring's
+        that the two actors shared. By creating a network like that, we managed to obtain networks where it was possible
+        to display a lot of actors, and still not drown the network in edges.
+    </p>
+
+    <p>
+        On a side-note, it should be mentioned that in general when we increased the number of movies that an actor had
+        to co-star in with another actor, in order to create a connection between them, the modularity of community
+        detection rose. We believed 3 were a good number to settle on, since we didn't want to manipulate the data too
+        much, but still believed that it would give a better indication of a social network, if actors had to co-star
+        more than once, in order for them to be connected.
+    </p>
+
+    <p>
+        Over the course of our analysis we also experimented a lot with the amount of actors, and thereby nodes in the
+        graph. We tried with ranges
+        varying from 500 nodes in a network and up to 10000 nodes in a single network.
+        However the calculation time on so large networks were insane, and it prevented us from doing meaningful
+        research. Therefore we settled on a network consisting of 3000 actors, and that
+        will be the basis of our network analysis.
+    <p/>
+
+    <p>
+        At the end of the network analysis section, we added four graphs, along with a selector that allows you to look
+        at different network sizes. By doing this, you can see that the size of the network doesn't mess up the
+        communities, nor the common properties, and the analysis could basically have been done on a network regardless
+        of its size.
+    </p>
+
+    <p>
+        The 3000 nodes that our network consisted of, happened to be the top 3000 nodes after the entire network was
+        created. That means, that first we create the network based on our approximately 40k movie-titles, and then we
+        select the top 3000 nodes, based on their individual degree. By doing that, we make sure that we have a lot of
+        interesting actors to look at, with exciting connections between them.
+    </p>
+
+    <h3>
+        Degree distribution
+    </h3>
+
+    <div class="row image-container-center">
+        <div class="col-12">
+            <b>Showing the degree distribution of the actor network of 3000 actors</b>
+        </div>
+        <div class="col-12">
+            <img width="100%"
+                 src="resources/degree_distribution.png"/>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-6">
+            <p>
+                The image above, shows the degree distribution of our created network. Typically when working with
+                social
+                networks, a lot of nodes have low degree, and then some nodes have a lot higher degree, which is also
+                the case
+                in the plot shown above. Also, usually the tail is very long, which is again the case here, so it seams
+                that the
+                way we created our network, is a good representation of a real world network of actors.
+            </p>
+            <p>
+                To the right we have an image of the top actors based on the node degree. As you can see, it doesn't
+                have to be the actors with more movies nor more co-actors in total that has the highest degree. It is
+                important that the actors you co-star in is more spread out, but still not only single movie starring's.
+                All of these actors have done voice-acting besides normal acting-roles, which might be a reason they are
+                in the top.
+            </p>
+
+            <p>
+                We wanted to investigate how an actor such as Jess Harnell, who have played with 2000 actors less than
+                Samuel L. Jackson, still have a higher node degree than Sam. We started looking into the distribution of
+                co-appearances for the two actors, and think we realised why this is the case. We plotted the two
+                individual distribution in two different plots, which can be seen below.
+            </p>
+
+            <p>
+                Looking at the two plots it is clearly that Sam. Jackson has appeared with much more different actors
+                once or twice than Jess Harnell. However Jess Harnell have more actors that he co-appeared with, which
+                is the reason that he has a higher node degree.
+            </p>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-5 image-container-center">
+            <b>Image showing the top 5 actors based on node degree</b>
+            <img src="resources/highest_degree_actors.png"
+                 width="50%">
+        </div>
+    </div>
+
+    <div class="image-container-center">
+        <b>Plot showing the comparision between the two actors and their distribution of co-appearances</b>
+        <img src="resources/dot_plot_sam_jess.png"
+             width="100%"/>
+    </div>
+
+    <div class="image-container-center">
+        <b>Bar showing the comparision between the two actors and their distribution of co-appearances</b>
+        <img src="resources/bar_plot_sam_jess.png"
+             width="100%"/>
+    </div>
+
+    <h3>
+        Friendship paradox
+    </h3>
+
+    <p>
+        We wanted to see if the friendship paradox is also true when looking at actors. The friendship paradox says that
+        in a typical network, it is the case that if you pick a random node, then the average degree of the node's
+        neighbours happens to be larger than the degree of the node itself. In other words, if we pick out a random
+        actor, chances are that his neighbour actors on average knows, or starred in more movies, than him.
+    </p>
+    <p>
+        After looping through all our nodes we found it that in 77% of the cases, the friendship paradox happened to be
+        true, and thereby false in 23% of the cases. We can thereby see that in general it is the case, which was also
+        expected.
+    </p>
+
+    <h2>
+        Drawing the network
+    </h2>
+
+    <p>
+        After having created the network, we had to determine which attributes should play a role in the visualization
+        of the network. We wanted to make the node-size proportional to the
+        degree of the node. For the color scheme we firstly tried out with gender. However there were absolutely no
+        relevant grouping to be found, and we figured that genres could be a
+        more interesting color scheme. To do this, we defined the most commonly played genre for each actor, and this
+        would be the genre that the actor adhered to.
+    </p>
+
+    <div class="image-container-center">
+        <b>Network of 3000 actors, colored by most common genre</b>
+        <img
+                id="actors-graph-3000"
+                src="./graph_images_tight/actorsgraph3000.png"
+                width="70%"
+        />
+    </div>
+
+    <p>
+        Looking at the image, it seems that some of the clusters in the network, are based by their genres. In order to
+        investigate this further, we went ahead and applied some community detection on the graph.
+    </p>
+
+    <h3>
+        Giant connected component
+    </h3>
+
+    <p>
+        We want to see how much of the graph is actually connected to each other, and how many hubs are alone. To do
+        that, we find the giant connected component of the graph, and compare it to the original graph.
+    </p>
+
+    <p>
+        After extracting the giant connected our component, we wanted to compare it side by side with our original
+        graph, which is seen below.
+    </p>
+    <div class="image-container-center">
+        <b>Side by side comparison. Original graph is on the left, gcc is on the right.</b>
+        <img src="resources/gcc_sided_with_original.png" width="100%"/>
+    </div>
+
+    <p>
+        As seen in the image above, the two graphs are very alike. However it seems that some nodes are missing from the
+        graph in the right-most image. We found out that actually there were 610 nodes missing. We wanted to investigate
+        why these nodes weren't connected to the rest of the graph. In order to do so, we extracted all subgraphs from
+        the main graph and looked into all the collections that consisted of 20 nodes or more. Then we looked at the
+        most frequent countries that the actors in that collection had starred in movies in. And interestingly enough,
+        it was only the giant connected component where USA the most frequent country.
+    </p>
+
+    <p>
+        Because of this founding, we wanted to color the graph based on the most frequent country. The result can be
+        seen below.
+    </p>
+
+    <div class="image-container-center">
+        <b>Actors network colored by most frequent country.</b>
+        <img src="resources/actors_by_country.png" width="70%"/>
+    </div>
+
+    <p>
+        The picture very clearly shows how the network is split into multiple different countries. You could argue that
+        these are also kinds of communities, but we think they are way to big and general in order to be really
+        interesting. It does explain why the giant connected component didn't contain all 3000 nodes though, so it is
+        good we did the research.
+    </p>
+
+    <p>
+        Moving forward we are going to look at the community detection in depth. We are still focusing on the genres,
+        and want to see if they really do play that big of a roles, when sub-communities occur in the graph.
+    </p>
+
+    <h2>
+        Community Detection
+    </h2>
+
+    <p>
+        Based on the community detection, we created a matrix where each column represented a genre that an actor has
+        been playing. Then each row of the matrix represented a partition from the community detection algorithm. The
+        matrix is shown below.
+    </p>
+    <img
+            id="community-matrix"
+            width="100%"
+            src="resources/community_matrix.png"
+    />
+
+    <p>
+        The image showing the matrix is only a part of the big table. Originally the table consists of 93 rows and 16
+        columns, however the amount of rows varied from around 90 to 95 each in each run.
+    </p>
+    <p>
+        If we are to investigate the cells of the matrix, it's actually really interesting to see that these communities
+        found by the community detection algorithm, aligns a lot with the genres. As an example, it seems that partition
+        1 is mainly actors most commonly starring in comedy movies. Partition 2 has primarily drama actors. Furthermore,
+        what is also really interesting, based on this matrix, we also get an impression of which movie genre actors
+        typically star in together. As an example it can be seen in partition 0, that comedy, family and animation is
+        typically a match, which immediately makes sense, based on our common knowledge about movies and their genres.
+    </p>
+
+    <p>
+        In order to make it even clearer that movie genres is a good partition of actors, we went through every
+        partition, and the most common genre in that partition would define the color of it. By doing this, we could
+        directly compare two graphs, one where the colors were based on the individual actors' and their genres, and one
+        where the colors were based on the communities that we found.
+    </p>
+
+    <div class="row">
+        <div class="col-12 image-container-center">
+            <h4>Comparision of color schemes. Both showing 3000 nodes.</h4>
+        </div>
+        <div class="col-xs-12 col-6 image-container-center">
+            <b>Individually colored</b>
+            <img width="100%"
+                 src="./graph_images_tight/actorsgraph3000.png"
+            />
+        </div>
+        <div class="col-xs-12 col-6 image-container-center">
+            <b>Community colored</b>
+            <img width="100%"
+                 src="./graph_images_tight/actorsgraph_community3000.png"
+            />
+        </div>
+    </div>
+
+    <p>
+        What's really interesting to see, is that the two images looks almost identical. It is very few nodes in the
+        graph,
+        that seems to be colored differently. Looking at the modularity, it is to be 0.85, which is also quite high.
+        <br>
+        Also interestingly enough, the modularity seems to be increasing when the amount of nodes increases. This seems
+        to indicate that we have a network where the communities are very strong and clear, and it also seems that these
+        communities are based on which genres the actors are playing.
+    </p>
+
+    <h2>
+        Betweenness centrality and Eigenvector centrality
+    </h2>
+
+    <p>
+        Now that we've been looking at communities, and have a good idea of how communities between actors are formed,
+        we want to switch our focus to the properties of the graph. First of all, we want to look at the betweenness-
+        and eigenvector centrality of our network. By drawing our nodes with sizes proportional to these two attributes,
+        we will investigate how the network is built.
+    </p>
+
+    <div class="row">
+        <div class="col-12 image-container-center">
+            <b>Network of actors. Node size proportional to Betweenness Centrality</b>
+        </div>
+        <div class="col-12">
+            <img width="70%"
+                 src="./graph_images_tight/actorsgraphBC3000.png"/>
+        </div>
+    </div>
+
+    <p>
+        Looking at this network, the node sizes are generally small. We see that communities which aren't connected to
+        the biggest connected component of the graph, have very small node sizes, which is expected, since betweenness
+        centrality is a measure of the centrality of a node. We see that it is a typical pattern that actors in the
+        outer areas of their community tends to grow big, since these are the actors that are connecting multiple
+        communities of genres with each other. Another thing we can take away from this, is that comedy and drama
+        generally have really big nodes, which could be explained by the fact that these genres are really common, and
+        are often categorised with multiple genres, whereas thriller and science fiction are more stand alone genres.
+    </p>
+
+    <div class="row">
+        <div class="col-8 image-container-center">
+            <b>Network of actors. Node size proportional to Eigenvector Centrality</b>
+            <img width="95%"
+                 src="./graph_images_tight/actorsgraphEVC3000.png"/>
+        </div>
+        <div class="col-4">
+            <b>
+                Table showing top EVC actors
+            </b>
+            <style type="text/css">
+                .tg {
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                }
+
+                .tg td {
+                    font-family: Arial, sans-serif;
+                    font-size: 14px;
+                    padding: 10px 5px;
+                    border-style: solid;
+                    border-width: 1px;
+                    overflow: hidden;
+                    word-break: normal;
+                    border-color: black;
+                }
+
+                .tg th {
+                    font-family: Arial, sans-serif;
+                    font-size: 14px;
+                    font-weight: normal;
+                    padding: 10px 5px;
+                    border-style: solid;
+                    border-width: 1px;
+                    overflow: hidden;
+                    word-break: normal;
+                    border-color: black;
+                }
+
+                .tg .tg-cly1 {
+                    text-align: left;
+                    vertical-align: middle
+                }
+
+                .tg .tg-0lax {
+                    text-align: left;
+                    vertical-align: top
+                }
+            </style>
+            <table class="tg">
+                <tr>
+                    <th class="tg-cly1">Robbie Coltrane</th>
+                    <th class="tg-cly1">Hagrid</th>
+                    <th class="tg-cly1">0.17</th>
+                </tr>
+                <tr>
+                    <td class="tg-cly1">Warwick Davis</td>
+                    <td class="tg-cly1">Griphook</td>
+                    <td class="tg-cly1">0.17</td>
+                </tr>
+                <tr>
+                    <td class="tg-cly1">Alan Rickman</td>
+                    <td class="tg-cly1">Snape</td>
+                    <td class="tg-cly1">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-cly1">Julie Walters</td>
+                    <td class="tg-cly1">Molly Weasley</td>
+                    <td class="tg-cly1">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Michael Gambon</td>
+                    <td class="tg-0lax">Albus Dumbledore</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Tom Felton</td>
+                    <td class="tg-0lax">Draco Malfoy</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Rupert Grint</td>
+                    <td class="tg-0lax">Ron Weasley</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Geraldine Somerville</td>
+                    <td class="tg-0lax">Lily Potter</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Emma Watson</td>
+                    <td class="tg-0lax">Hermione</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Daniel Radcliffe</td>
+                    <td class="tg-0lax">Harry Potter</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Timothy Spall</td>
+                    <td class="tg-0lax">Wormtail</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Devon Murray</td>
+                    <td class="tg-0lax">Seamus Finnigan</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Matthew Lewis</td>
+                    <td class="tg-0lax">Neville</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">James Phelps</td>
+                    <td class="tg-0lax">Weasley Twin</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Oliver Phelps</td>
+                    <td class="tg-0lax">Weasley Twin</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Josh Herdman</td>
+                    <td class="tg-0lax">Goyle</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Bonnie Wright</td>
+                    <td class="tg-0lax">Ginnie</td>
+                    <td class="tg-0lax">0.16</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <p>
+        Since Eigenvector Centrality is a measurement of a nodes influence in a network, and since the image above indicated that
+        it is only a relatively small part of the network, that is bigger than the rest, however much bigger, we
+        wanted to investigate which actors were part of this collection of big nodes. It turns out that many of the top
+        actors according to Eigenvector Centrality are actually a part of the Harry Potter universe. This could
+        possibly be explained by the fact that the Harry Potter universe used the same actors throughout 8 movies, and
+        the amount of actors used through all 8 movies were big. The 17 actors shown in the table, are the top 17 actors
+        according to Eigenvector Centrality, however it was actually the top 69 actors, based on eigenvector values,
+        that all starred in one or more Harry Potter movies. We wrote the actors name,
+        and then the character he/she portrays in the universe, as well as their score.
+    </p>
+
+    <h2>
+        Changing the size of the network
+    </h2>
+
+    <p>
+        As mentioned in the beginning of the network analysis, we did build and draw a lot of different networks, all
+        varying in size. What you will find, if you investigate all these different networks, are that even though they
+        obviously vary in size, it seems that the community detection algorithm is always on point, and we can
+        definitely conclude that common communities in a network of actors, depends on the genre in which the actors
+        appear in. This is always expected, since our network was generated with movies as links between actors, so two
+        actors starring in the same movie, will both have played the genres of that particular movie. We did however
+        find it interesting that the grouping were so similar to the most common genre, since a lot of these actors have
+        appeared in many different movies, all with possible different genres.
+    </p>
+
+    <div>
+        <b>Select node count</b>
+        <select id="imageSelector" onchange="updateImages(this.value)"></select>
+    </div>
+    <div class="row">
+        <div class="col-6 image-container-center">
+            <b>Nodes colored by individual genre. Node size proportional to degree</b>
+            <img width="100%"
+                 id="actorsGraph"
+                 src="./graph_images_tight/actorsgraph3000.png"
+            />
+        </div>
+        <div class="col-6 image-container-center">
+            <b>Nodes colored by community genre. Node size proportional to degree</b>
+            <img width="100%"
+                 id="actorsGraphCommunity"
+                 src="./graph_images_tight/actorsgraph_community3000.png"
+            />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6 image-container-center">
+            <b>Nodes colored by individual genre. Node size proportional to EVC</b>
+            <img width="100%"
+                 id="actorsGraphEVC"
+                 src="./graph_images_tight/actorsgraphEVC3000.png"
+            />
+        </div>
+        <div class="col-6 image-container-center">
+            <b>Nodes colored by individual genre. Node size proportional to BC</b>
+            <img width="100%"
+                 id="actorsGraphBC"
+                 src="./graph_images_tight/actorsgraphBC3000.png"
+            />
+        </div>
+    </div>
+
+    <hr class="featurette-divider" id="retrievingdata">
+
+    <div>
+        <h1>
+            An analysis of plots
+        </h1>
+
+        <p>
+            To take a deeper look into how the different movies differentiated in their plots and how they were publicly pitched to the viewers of what they were going to watch, we wanted to take a look at how different genres writes their plot lines, in order to figure out if any genres are more positive than others, or if there are a clear differentiation between the words used by the genres.
+        </p>
+
+        <h2>Generating data</h2>
+        <p>
+            To analyse the different plots, we needed first to get the plots from the movies based on the genres, and manipulate the content, such that we removed general stopwords in the english language, as well as remove any unknown words by comparing the plots to the english dictionary. Having completed these steps, we are left with a list of tokenized words for each plot of the movie, where punctuation and other characters have been removed, such that we can easily analyse the plots.
+        </p>
+
+
+        <h2>Genre analysis</h2>
+
+        <p>Having tokenized the data, we were ready to analyse the different plots. First we wanted to look at which words were unique and important to different genres. To accomplish this we first wanted to use TF-IDF analysis against the different genres to get a "score" of the words based on how unique and frequent the were in the specific genres word list. To do this, we gathered all the plots of the of the same genre in corresponding lists, and were left with 19 different lists contain all the tokenized words of the plots of the genres. Having these lists, we could calculate the TF-IDF of each word. Using the TF-IDF of the words, we wanted to create a wordcloud for each genre, to see if we could easily determine, which words defined the different genres, as well as look at the top words for the genres to see if we could determine, if some genres were more positive or negative compared to others.</p>
+
+
+        <h3>Plot Wordclouds</h3>
+
+        <p>Below a dropdown can be found, where the different genres are listed, which automatically change the plot based wordclouds on the genre, to easily differentiate the wordclouds for each genre.</p>
+
+        <div>
+            <select id="wordcloudTDIDFPlotSelector" onchange="updateWordcloudTFIDFPlotImages(this.value)">
+                <option value="Romance" selected>Romance</option>
+                <option value="Drama">Drama</option>
+                <option value="Action">Action</option>
+                <option value="Crime">Crime</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Horror">Horror</option>
+                <option value="History">History</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Science Fiction">Science Fiction</option>
+                <option value="War">War</option>
+                <option value="Documentary">Documentary</option>
+                <option value="Music">Music</option>
+                <option value="TV Movie">TV Movie</option>
+                <option value="Western">Western</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Animation">Animation</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Family">Family</option>
+                <option value="Fantasy">Fantasy</option>
+            </select>
+        </div>
+        <div class="image-container">
+            <img
+                    id="genreTFIDFImage"
+                    class="img"
+                    src="./wordcloud_images/tfidf/genreTFIDF-Romance.png"
+            />
+            <img
+                    id="genrePlotImage"
+                    class="img"
+                    src="./wordcloud_images/plot/genrePlots-Romance.png"
+            />
+        </div>
+
+        <p>Using the wordclouds for each genre, we could clearly see that different words defined each genre. For example in the romance genre, words such as flirting and matchmaker were highlighted by our TF-IDF analysis and words such as woman, love and relationship was highlighted by our plot analysis. These words corresponds to our overall prediction, that words associated with a genre depicts the overall feeling of genre, such as love for romance, and fiction related word as cyborg, android and robot, for the science fiction genre.</p>
+
+        <h3>Actor Wordclouds</h3>
+
+        <p>Having looked at the different genres most used words, we wanted to take a look at which actors were mainly playing different genres in a wordcloud. Doing this we could find which actors were some of the top actors of the different genres, and by this we could see if these actors mainly used words in the movies they star in, related to the genre that they dominate.</p>
+
+        <p>Below dropdowns can be found, where different actors and genres are listed, which automatically change the actors based wordclouds on the genre actors and the plots based on the actors movies, to easily differentiate the wordclouds for each actor and genre. The actors we choose were actors we found to be some of the top actors of the genres, like Jackie Chan we expect action based words, and with James Gammon, more western based words.</p>
+
+        <div>
+            <select id="wordcloudGenreActorsSelector" onchange="updateWordcloudGenreActorsImages(this.value)">
+                <option value="Romance" selected>Romance</option>
+                <option value="Drama">Drama</option>
+                <option value="Action">Action</option>
+                <option value="Crime">Crime</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Horror">Horror</option>
+                <option value="History">History</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Science Fiction">Science Fiction</option>
+                <option value="War">War</option>
+                <option value="Documentary">Documentary</option>
+                <option value="Music">Music</option>
+                <option value="TV Movie">TV Movie</option>
+                <option value="Western">Western</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Animation">Animation</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Family">Family</option>
+                <option value="Fantasy">Fantasy</option>
+            </select>
+        </div>
+        <div class="image-container">
+            <img
+                    id="actorWordcloudGenreActorsImage"
+                    src="./wordcloud_images/movie_actors/genre-Romance.png"
+            />
+        </div>
+
+        <div>
+            Action-based:
+            <select id="wordcloudActorActionSelector" onchange="updateWordcloudActorActionImages(this.value)">
+                <option value="Dolph Lundgren" selected>Dolph Lundgren</option>
+                <option value="Danny Trejo">Danny Trejo</option>
+                <option value="Jackie Chan">Jackie Chan</option>
+                <option value="Samuel L. Jackson">Samuel L. Jackson</option>
+                <option value="Bruce Willis">Bruce Willis</option>
+
+            </select>
+
+            Western-based:
+            <select id="wordcloudActorWesternSelector" onchange="updateWordcloudActorWesternImages(this.value)">
+                <option value="James Gammon" selected>James Gammon</option>
+                <option value="Luce Rains">Luce Rains</option>
+                <option value="Wes Studi">Wes Studi</option>
+                <option value="Barry Corbin">Barry Corbin</option>
+                <option value="Sam Elliott">Sam Elliott</option>
+            </select>
+        </div>
+        <div class="image-container">
+            <img
+                    id="actorWordcloudActionImage"
+                    class="img"
+                    src="./wordcloud_images/actors/actor-Dolph%20Lundgren.png"
+            />
+            <img
+                    id="actorWordcloudWesternImage"
+                    class="img"
+                    src="./wordcloud_images/actors/actor-James%20Gammon.png"
+            />
+        </div>
+
+        <p>Looking at the actors, we can clearly see that our selected actors all follow our general prediction of their main focus genres, based on the words of the plots of the movies they are in.</p>
+
+        <h3>Decades Wordclouds</h3>
+
+        <p>Too look at how different genres differentiate over the usage of words in the movie plots based on genre, we decided to look the four different decades our movie data span across: 1980, 1990, 2000 and 2010. We again have included a dropdown menu, where you are able to select the different genres, to easily compare the different decades</p>
+
+        <div>
+            <select id="wordcloudDecadePlotSelector" onchange="updateWordcloudDecadePlotImages(this.value)">
+                <option value="Romance" selected>Romance</option>
+                <option value="Drama">Drama</option>
+                <option value="Action">Action</option>
+                <option value="Crime">Crime</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Horror">Horror</option>
+                <option value="History">History</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Science Fiction">Science Fiction</option>
+                <option value="War">War</option>
+                <option value="Documentary">Documentary</option>
+                <option value="Music">Music</option>
+                <option value="TV Movie">TV Movie</option>
+                <option value="Western">Western</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Animation">Animation</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Family">Family</option>
+                <option value="Fantasy">Fantasy</option>
+            </select>
+        </div>
+        <div class="image-container">
+            <img
+                    id="genreDecade1980Image"
+                    class="img"
+                    src="./wordcloud_images/decades/decadePlot-1980-Romance.png"
+            />
+            <img
+                    id="genreDecade1990Image"
+                    class="img"
+                    src="./wordcloud_images/decades/decadePlot-1990-Romance.png"
+            />
+            <img
+                    id="genreDecade2000Image"
+                    class="img"
+                    src="./wordcloud_images/decades/decadePlot-2000-Romance.png"
+            />
+            <img
+                    id="genreDecade2010Image"
+                    class="img"
+                    src="./wordcloud_images/decades/decadePlot-2010-Romance.png"
+            />
+        </div>
+
+        <p>Looking at the different genres we can see that they are very consistent in the different words used across the genre. For example if we look at the Science Fiction genre, we can see that words such as alien and earth are very dominant across all of the decades. This is very interesting to see, with the high technologically advancements we have had across the different decades. We thought that there might have been a greater shift in the words and focus of the movies across the decades to reflect new technologies, new ideas and inventions we might have generated from technological advancements.</p>
+
+        <hr class="featurette-divider" id="retrievingdata">
+
+        <h2>Sentiment analysis</h2>
+
+        <p>Having now looked at which words were dominant in the different genres and how well they related to our initial thoughts on words that the different genres might have, we wanted to look at how positive each movie actually is. With this we hope to discover some interesting things, including:</p>
+
+        <ul>
+            <li>Is there a correlation between a movie's rating and its positivity</li>
+            <li>What genres are the most positive</li>
+            <li>How has the positivity of movies changed over the years</li>
+            <li>Which actors star in the most positive movies</li>
+        </ul>
+            
+        <p>To do this, we are going to use the plots of movies. If we had only looked at a few movies it would have made more sense to use the scripts of each movie, since this contains all words expressed in the movie. But as explained, we chose to look at approximately 40K movies, and we don't have the time/processing power to acquire and analyse that many scripts. We are therefore going to use the plot of the movie, which we got from the extended plot on IMDB. Throughout our dataset the plots contain an average of around 77 words, so we can still use them to say a lot about the positivity of a movie.</p>
+
+        <p> To assign a sentiment score to the words we use the LabMT wordlist. A higher sentiment value means a greater use of positive words.</p>
+        <p>When calculating the total score of a list of words, the number of words matter. In our case, this would mean that a movie with a very long and detailed plot, would have a higher chance of getting a higher sentiment score than a shorter one, even though the words used actually aren't more positive. We will therefore normalize our sentiment score when calculating it, by dividing with the number of words. This means that the difference between a high and a low sentiment score will be very close for our plots, making a small difference in score significant.</p>
+
+        <h2 class="featurette-heading">Does positivy affect the rating of a movie?</h2>    
+
+        <p>The first interesting thing to look at is whether more positive movies are generally rated higher. We therefore want to investigate if there is a correlation between the IMDB rating of a movie and the plot of the movie.</p>
+
+        <p>If we plotted all 40K movies based on their rating and sentiment score, we would get a giant blob that would make it impossible to see anything useful. We are therefore only going to be looking at the top 10,000 movies and the bottom 10,000 movies sorted by rating. This will let us determine if there are any patterns. The plot can be seen below:</p>
+             
+        <div class="image-container">
+            <img
+                    id="ratingvsscore"
+                    class=""
+                    src="./sentiment_images/ratingvsscore.png"
+            />
+        </div>
+
+        <p>We can see that there is no clear correlation, as there is no significant difference between the sentiment scores of the top and bottom rated movies. This makes sense since genres like action, drama and crime are amongst the most popular genres.</p>
+
+        <p>The positivity of a movie therefore doesn't seem to affect its rating.</p>
+
+        <div class="featurette">
+            <h2 class="featurette-heading">Now let's look more at genres
+                <span class="text-muted">to try and identify which are the most positive</span>
+            </h2>
+        </div>
+       
+        <p>We are now going to combine the plots of all movies in each genre, in order to find which genre contains the movies with the highest sentiment score.</p>
+
+        <p>The difference in total scores of each genre is very small. However, an interesting pattern that we expected does show:</p>
+
+        
+
+        <figure>
+            <img
+                    id="ratingvsscore"
+                    class=""
+                    src="./sentiment_images/genrevsscore.png"
+            />
+            <figcaption>
+                Notice the interval of the sentiment score in order to show the difference in score. 
+            </figcaption>
+        </figure>
+
+        <p>The results are very much as expected. Genres like Music, Romance and Family are the most positive based on the sentiment score. This makes sense since they generally contain very positive words, which we saw in the wordclouds of these genres. E.g. words like "music", "love" and "friend" which all has a very high sentiment score.</p>
+
+        <p><b>A funny thing to notice is that the genre History scores very low.</b> Almost as low as Horror in fact. This might be food for thought for us humans...</p>
+
+        <div class="featurette">
+            <h2 class="featurette-heading">Have movies become more or less
+                <span class="text-muted">positive over the last 40 years?</span>
+            </h2>
+        </div>
+
+        <p>This is something interesting to look it, since we hear more and more horrible news about the world everyday. But is the world actually getting more negative, and does this reflect in the plots of the movies that are created?</p>
+
+        <figure>
+            <img
+                    id="ratingvsscore"
+                    class=""
+                    src="./sentiment_images/decadevsscore.png"
+            />
+            <figcaption>
+                Again, notice the interval of the sentiment score. The difference in score is actually very small. 
+            </figcaption>
+        </figure>
+
+        <p>As we can see positivity of all plots has actually increased in each decade.</p>
+        <ul>
+            <li>The 1980s scored the lowest with a score of 4.7197</li>
+            <li>The 2010s scored the highest with a score of 4.7581</li>
+        </ul>
+
+        <p>However, before we go and conclude that the 1980s were super negative and that the movies of the 2010s are way more happy and positive, we should note that <b>the percentage difference between the highest and lowest decades is 0.08%.</b> But it is still interesting to see that the sentiment score has generally increases over the last 40 years, even though it is by a very small amount.</p>        
+        
+        <p>Now we have learned a bit about the positivity of movies in different genres.</p>
+
+        <div class="featurette">
+            <h2 class="featurette-heading">We will now look at which actors
+                <span class="text-muted">star in the most positive movies</span>
+            </h2>
+        </div>
+
+        <p>Just like we did with the genres, we will now combine all genres of all movies that each actor has ever starred in.</p>
+        
+        <p>Since we want to investigate the pattern of movies that an actor stars in, we want to avoid actors that have only starred in a few movies. We will therefore only look at actors that has starred in 5 or more movies.</p>
+
+        <div class="row">
+            <div class="column actor-image">
+                <img
+                    src="./sentiment_images/topActors.PNG"
+                    style="width:100%"
+                />
+            </div>
+            <div class="column actor-image">
+                <img
+                    src="./sentiment_images/bottomActors.PNG"
+                    style="width:100%"
+                />
+            </div>
+        </div>
+
+        <p><b>Diana Kaarina is the actor that stars in the most positive movies.</b> It turns out that she is a Canadian voice actress that mainly do voice-overs for children's cartoons like My Little Pony. We saw in the previous wordclouds that the genre Animation generally contain very positive words like "friend" and "help".</p>
+
+        <p>At the other end of the spectrum, </b>the Danish Søren Spanning is the actor that stars in the most negative movies.</b> He mainly stars in Drama movies and series, which generally contain words that can be perceived as less positive, which we saw in the wordclouds.</p>
+
+        <div class="featurette">
+            <h2 class="featurette-heading">Who generally stars in the most positive movies:
+                <span class="text-muted">Men or women?</span>
+            </h2>
+        </div>
+
+        <p>Let's investigate the age-old question of male vs female, since it would be interesting to see if there is a pattern in gender and positivity. I.e. do women overall star in more positive movies than men do? Think about your favorite action movies. There is most likely a chance that there is a small majority of male actors in those movies. You could argue that females might generally be more sentimental than males, which could lead us to suspect that women might star in the most positive movies. But let's now see if this is actually true.</p>
+
+        <p>To investigate this we split the sentiment scores of all actors into two lists: one for all scores of male actor, and for all score of female actors. Some actors in our dataset didn't have their gender specified, and we chose to remove these. This gives us a total of</p>
+
+        <ul>
+            <li>7110 male actors</li>
+            <li>13417 female actors</li>
+        </ul>
+
+        <p>The following histogram shows the frequency of sentiment scores in men and women respectively:</p>
+
+        <figure>
+            <img
+                    id="ratingvsscore"
+                    class=""
+                    src="./sentiment_images/gendervsscore.png"
+            />
+        </figure>
+
+        <p>It turns out, that the sentiment scores of all male and all female actors are very much alike. They both follow a normal distribution which makes sense. But if we look closer at the numbers and find the mean of scores for both men and women, we get the following results.</p>
+
+        <ul>
+            <li>Male sentiment mean: 4.7799</li>
+            <li>Female sentiment mean: 4.7065</li>
+        </ul>
+
+        <p>Even though this is a small difference, it still shows that <b>men generally star in movies that are more positive, which is quite interesting.</b></p>
+
+    </div>
+</div>
+
+<!-- JQUERY IMPORTS FOR BOOTSTRAP -->
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+
+<!-- CUSTOM JS IMPORT -->
+
+<script src="./index.js"></script>
+</body>
+</html>
