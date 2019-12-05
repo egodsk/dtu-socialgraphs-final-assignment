@@ -790,18 +790,18 @@
             <li>How has the positivity of movies changed over the years</li>
             <li>Which actors star in the most positive movies</li>
         </ul>
-            
+
         <p>To do this, we are going to use the plots of movies. If we had only looked at a few movies it would have made more sense to use the scripts of each movie, since this contains all words expressed in the movie. But as explained, we chose to look at approximately 40K movies, and we don't have the time/processing power to acquire and analyse that many scripts. We are therefore going to use the plot of the movie, which we got from the extended plot on IMDB. Throughout our dataset the plots contain an average of around 77 words, so we can still use them to say a lot about the positivity of a movie.</p>
 
         <p> To assign a sentiment score to the words we use the LabMT wordlist. A higher sentiment value means a greater use of positive words.</p>
         <p>When calculating the total score of a list of words, the number of words matter. In our case, this would mean that a movie with a very long and detailed plot, would have a higher chance of getting a higher sentiment score than a shorter one, even though the words used actually aren't more positive. We will therefore normalize our sentiment score when calculating it, by dividing with the number of words. This means that the difference between a high and a low sentiment score will be very close for our plots, making a small difference in score significant.</p>
 
-        <h2 class="featurette-heading">Does positivy affect the rating of a movie?</h2>    
+        <h2 class="featurette-heading">Does positivy affect the rating of a movie?</h2>
 
         <p>The first interesting thing to look at is whether more positive movies are generally rated higher. We therefore want to investigate if there is a correlation between the IMDB rating of a movie and the plot of the movie.</p>
 
         <p>If we plotted all 40K movies based on their rating and sentiment score, we would get a giant blob that would make it impossible to see anything useful. We are therefore only going to be looking at the top 10,000 movies and the bottom 10,000 movies sorted by rating. This will let us determine if there are any patterns. The plot can be seen below:</p>
-             
+
         <div class="image-container">
             <img
                     id="ratingvsscore"
@@ -818,12 +818,12 @@
             <h2 class="featurette-heading">Now let's look more at genres to try and identify which are the most positive
             </h2>
         </div>
-       
+
         <p>We are now going to combine the plots of all movies in each genre, in order to find which genre contains the movies with the highest sentiment score.</p>
 
         <p>The difference in total scores of each genre is very small. However, an interesting pattern that we expected does show:</p>
 
-        
+
 
         <figure>
             <img
@@ -832,7 +832,7 @@
                     src="./sentiment_images/genrevsscore.png"
             />
             <figcaption>
-                Notice the interval of the sentiment score in order to show the difference in score. 
+                Notice the interval of the sentiment score in order to show the difference in score.
             </figcaption>
         </figure>
 
@@ -854,7 +854,7 @@
                     src="./sentiment_images/decadevsscore.png"
             />
             <figcaption>
-                Again, notice the interval of the sentiment score. The difference in score is actually very small. 
+                Again, notice the interval of the sentiment score. The difference in score is actually very small.
             </figcaption>
         </figure>
 
@@ -864,8 +864,8 @@
             <li>The 2010s scored the highest with a score of 4.7581</li>
         </ul>
 
-        <p>However, before we go and conclude that the 1980s were super negative and that the movies of the 2010s are way more happy and positive, we should note that <b>the percentage difference between the highest and lowest decades is 0.08%.</b> But it is still interesting to see that the sentiment score has generally increases over the last 40 years, even though it is by a very small amount.</p>        
-        
+        <p>However, before we go and conclude that the 1980s were super negative and that the movies of the 2010s are way more happy and positive, we should note that <b>the percentage difference between the highest and lowest decades is 0.08%.</b> But it is still interesting to see that the sentiment score has generally increases over the last 40 years, even though it is by a very small amount.</p>
+
         <p>Now we have learned a bit about the positivity of movies in different genres.</p>
 
         <div class="featurette">
@@ -874,7 +874,7 @@
         </div>
 
         <p>Just like we did with the genres, we will now combine all genres of all movies that each actor has ever starred in.</p>
-        
+
         <p>Since we want to investigate the pattern of movies that an actor stars in, we want to avoid actors that have only starred in a few movies. We will therefore only look at actors that has starred in 5 or more movies.</p>
 
         <div class="row">
@@ -931,8 +931,55 @@
 
     </div>
 
+    <h3>
+        TL;DR
+    </h3>
+
+    <p>
+        If you were too lazy to thoroughly read our entire paper, this is a highlight reel of our findings.
+    </p>
+
+    <ul>
+        <li>
+            Actors tend to group into sub-communities which heavily depend on the genre they primarily star in.
+        </li>
+        <li>
+            The majority of our actors star in movies produced in the U.S.
+        </li>
+        <li>
+            The Harry Potter universe is extremely tightly connected, since most of the actors star in all movies of the series.
+        </li>
+        <li>
+            Genre is generally very consistent throughout the years.
+        </li>
+        <li>
+            The plots of the movies in a genre contain words that are commonly associated with that genre.
+        </li>
+        <li>
+            Danny Trejo and Jackie Chan are THE action guys.
+        </li>
+        <li>
+            The genres expected to be the most positive, actually have the most positive movie plots.
+        </li>
+        <li>
+            The genre History is almost as negative as the Horror genre, and more negative than Drama and Thriller.
+        </li>
+        <li>
+            The danish actor Søren Spanning is the actor starring in the most negative movies. Hmmm....
+        </li>
+        <li>
+            Men generally star in more positive movies than women.
+        </li>
+    </ul>
+
     <div>
         <h1>Download links</h1>
+        <p>
+            If you want to play around with our dataset yourself, you can download it below.
+        </p>
+        <p>
+            If you want to modify our data-manipulation and analysis you can access the explainer notebook below.
+        </p>
 
         <a class="btn btn-primary btn-lg" role="button" href="./data.zip">Download data</a>
         <a class="btn btn-primary btn-lg" role="button" target="_blank" href="https://nbviewer.jupyter.org/github/egodsk/dtu-socialgraphs-final-assignment/blob/master/Explainer%20Notebook%20-%20Movie%20Analysis.ipynb">Explainer notebook</a>
